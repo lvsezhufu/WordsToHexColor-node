@@ -1,0 +1,29 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- job: BuildJob
+  steps:
+  - script: npm install
+    displayName: 'Install Dependencies'
+    workingDirectory: $(System.DefaultWorkingDirectory)
+      
+  - script: npm run build
+    displayName: 'Build Node.js App'
+    workingDirectory: $(System.DefaultWorkingDirectory)
+
+  - task: ArchiveFiles@2
+    displayName: 'Archive files'
+    inputs:
+      rootFolderOrFile: $(System.DefaultWorkingDirectory)
+      includeRootFolder: false
+  - task: AzureWebApp@1
+    displayName: 'Azure Web App Deploy: marnodeappwin'
+    inputs:
+      azureSubscription: 'marinaliu-MCAPS (ed914990-3a09-4e86-8331-20121d82be0f)'
+      appType: webApp
+      appName: marnodeappwin
+      package: '$(Build.ArtifactStagingDirectory)/*.zip'
